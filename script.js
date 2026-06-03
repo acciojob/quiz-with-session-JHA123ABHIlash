@@ -57,8 +57,9 @@ function renderQuestions() {
       label.textContent = choice;
 
        if (progress[el.question] === choice) {
-        input.checked = true;
-      }
+  input.checked = true;
+  input.setAttribute("checked", "true");
+}
 
       input.addEventListener("change", () => {
         progress[el.question] = choice;
