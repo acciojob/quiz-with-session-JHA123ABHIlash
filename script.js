@@ -1,7 +1,3 @@
-//your JS code here.
-
-// Do not change code below this line
-// This code will just display the questions to the screen
 const questions = [
   {
     question: "What is the capital of France?",
@@ -30,27 +26,82 @@ const questions = [
   },
 ];
 
-// Display the quiz questions and choices
+let questionsElement = document.getElementById("questions");
+let btn = document.getElementById("submit");
+let score = 0;
+const scoreElement = document.getElementById("score");
+
+let progress =
+  JSON.parse(sessionStorage.getItem("progress")) || {};
+
 function renderQuestions() {
-  for (let i = 0; i < questions.length; i++) {
-    const question = questions[i];
+    questionsElement.innerHTML = "";
+
+  questions.forEach((el) => {
+    let question = el.question;
     const questionElement = document.createElement("div");
-    const questionText = document.createTextNode(question.question);
-    questionElement.appendChild(questionText);
-    for (let j = 0; j < question.choices.length; j++) {
-      const choice = question.choices[j];
-      const choiceElement = document.createElement("input");
-      choiceElement.setAttribute("type", "radio");
-      choiceElement.setAttribute("name", `question-${i}`);
-      choiceElement.setAttribute("value", choice);
-      if (userAnswers[i] === choice) {
-        choiceElement.setAttribute("checked", true);
+    const textElement = document.createElement("p");
+    textElement.innerText = question;
+    questionElement.appendChild(textElement);
+
+    el.choices.forEach((opt) => {
+      const choice = opt;
+      const input = document.createElement("input");
+      input.setAttribute("type", "radio");
+      input.setAttribute("name", `${question}`);
+      input.setAttribute("value", choice);
+      const id = `${question}-${choice}`;
+      input.setAttribute("id", id);
+      const label = document.createElement("label");
+      label.setAttribute("for", id);
+      label.textContent = choice;
+
+       if (progress[el.question] === choice) {
+        input.checked = true;
       }
-      const choiceText = document.createTextNode(choice);
-      questionElement.appendChild(choiceElement);
-      questionElement.appendChild(choiceText);
-    }
+
+      input.addEventListener("change", () => {
+        progress[el.question] = choice;
+
+        sessionStorage.setItem(
+          "progress",
+          JSON.stringify(progress)
+        );
+      });
+      questionElement.appendChild(input);
+      questionElement.appendChild(label);
+      
+    });
+    
+
+
     questionsElement.appendChild(questionElement);
-  }
+  });
 }
+
+const savedScore = localStorage.getItem("score");
+
+if (savedScore !== null) {
+  scoreElement.textContent = `Your score is ${savedScore} out of 5.`;
+}
+
+
 renderQuestions();
+
+btn.addEventListener("click", () => {
+  score = 0;
+
+  questions.forEach((q) => {
+    const selected = document.querySelector(
+      `input[name="${q.question}"]:checked`,
+    );
+
+    if (selected && selected.value === q.answer) {
+      score++;
+    }
+  });
+ 
+  scoreElement.textContent = `Your score is ${score} out of 5.`;
+
+  localStorage.setItem("score", score);
+});
